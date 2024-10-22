@@ -1,0 +1,34 @@
+# Local .terraform directories (where provider binaries are stored)
+**/.terraform/*
+# Exclude the .terraform directory in all subdirectories
+!**/.terraform/terraform.tfstate
+!**/.terraform/terraform.tfstate.lock.info
+.terraform.lock.hcl
+
+# Ignore .tfstate files and their backups
+*.tfstate
+*.tfstate.*
+
+# Ignore crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files (sensitive data)
+*.tfvars
+*.tfvars.json
+
+# Ignore override files (local customizations)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore transient lock info files
+.terraform.tfstate.lock.info
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Include example override files if desired
+# !example_override.tf

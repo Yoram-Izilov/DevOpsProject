@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wsgi
+  labels:
+    app: wsgi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wsgi
+  template:
+    metadata:
+      labels:
+        app: wsgi
+    spec:
+      containers:
+        - name: wsgi
+          image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/wsgi:debug
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
