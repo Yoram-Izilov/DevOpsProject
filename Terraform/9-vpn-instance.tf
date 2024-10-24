@@ -1,5 +1,4 @@
-#  ami-0ccc5636aea2eb2bc - private opnvpn ami
-
+#  ami-0ccc5636aea2eb2bc - private openVPN ami
 # Create Security Group for EC2 Instance
 resource "aws_security_group" "vpn_ec2_sg" {
   vpc_id = aws_vpc.main.id
