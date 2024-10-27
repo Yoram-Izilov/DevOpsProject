@@ -63,10 +63,6 @@ helm repo update
 echo "Creating namespace '$NAMESPACE'..."
 kubectl create namespace "$NAMESPACE"
 
-# Verify the namespace creation
-echo "Getting namespaces..."
-kubectl get ns
-
 # Install Prometheus Kube Prometheus Stack with node selector
 echo "Installing Prometheus Kube Prometheus Stack in namespace '$NAMESPACE'..."
 helm install monitoring prometheus-community/kube-prometheus-stack -n "$NAMESPACE" \
@@ -77,15 +73,7 @@ helm install monitoring prometheus-community/kube-prometheus-stack -n "$NAMESPAC
 
 # Wait for pods to be ready
 echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
-kubectl wait --for=condition=available --timeout=600s deployment/kube-prometheus-stack -n "$NAMESPACE"
-
-# List the pods in the monitoring namespace
-echo "Getting pods in namespace '$NAMESPACE'..."
-kubectl get pods -n "$NAMESPACE"
-
-# List the services in the monitoring namespace
-echo "Getting services in namespace '$NAMESPACE'..."
-kubectl get svc -n "$NAMESPACE"
+kubectl wait --for=condition=available --timeout=60s deployment/kube-prometheus-stack -n "$NAMESPACE"
 
 echo "Installation completed."
 
@@ -118,3 +106,9 @@ sed -i "s/DNS-ROLE/$EXTERNAL_DNS_ROLE/g" "$DNS_YAML_FILE"
 
 # Confirm the replacement
 echo "Updated Ingress YAML with subnets: $EXTERNAL_DNS_ROLE"
+
+echo "Applying yamls..."
+kubectl apply -f $EXTERNAL_DNS_ROLE
+kubectl apply -f ./Helm/ingressclass-resource.yaml
+kubectl apply -f ./Helm/app-yamls/
+

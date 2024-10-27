@@ -27,17 +27,6 @@ pipeline {
         stage('Update yaml files') {
             steps {
                 script {
-                    // Load your deployment YAML
-                    def yamlContent = readFile 'deployment.yaml'
-                    
-                    // Replace the placeholder with the actual value
-                    yamlContent = yamlContent.replace('{{ subnet }}', "${SUBNET}")
-                    
-                    // Write the updated YAML to a file
-                    writeFile file: 'updated-deployment.yaml', text: yamlContent
-
-                    // Deploy using kubectl
-                    sh 'kubectl apply -f updated-deployment.yaml'
                 }
             }
         }
