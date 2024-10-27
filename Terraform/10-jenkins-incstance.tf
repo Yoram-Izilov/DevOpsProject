@@ -36,18 +36,14 @@ resource "aws_security_group" "jenkins_ec2_sg" {
   }
 }
 
-# Create jenkins EC2 Instance
+# Create jenkins EC2 Instance - ami-014aa519f4166e6ef
 resource "aws_instance" "jenkins_server" {
-  ami                     = "ami-0866a3c8686eaeeba"
+  ami                     = "ami-014aa519f4166e6ef"
   instance_type           = "t3.medium"
   subnet_id               = aws_subnet.private_a1.id
   vpc_security_group_ids  = [aws_security_group.jenkins_ec2_sg.id] 
   key_name = "yoram-key-home" 
-
-  root_block_device {
-    volume_size = 20
-  }
-
+  
   tags = {
     Name = "carmel-yoram-jenkins"
   }

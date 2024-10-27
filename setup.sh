@@ -108,7 +108,7 @@ sed -i "s/DNS-ROLE/$EXTERNAL_DNS_ROLE/g" "$DNS_YAML_FILE"
 echo "Updated Ingress YAML with subnets: $EXTERNAL_DNS_ROLE"
 
 echo "Applying yamls..."
-kubectl apply -f $EXTERNAL_DNS_ROLE
 kubectl apply -f ./Helm/ingressclass-resource.yaml
+kubectl apply -f $EXTERNAL_DNS_ROLE
 kubectl apply -f ./Helm/app-yamls/
 
