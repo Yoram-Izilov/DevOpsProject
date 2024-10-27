@@ -18,7 +18,7 @@ metadata:
     alb.ingress.kubernetes.io/success-codes: '200'
     alb.ingress.kubernetes.io/healthy-threshold-count: '2'
     alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
-    alb.ingress.kubernetes.io/subnets: subnet-0883da10683add9dd,subnet-099aa43986de7b09e
+    alb.ingress.kubernetes.io/subnets: public_subnet_a,public_subnet_b
     # SSL Settings
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:992382545251:certificate/1f50a0c6-9c42-4b7b-896a-d8681820cf94

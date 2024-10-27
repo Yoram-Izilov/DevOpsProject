@@ -1,0 +1,45 @@
+pipeline {
+    agent {
+        label env.JENKINS_AGENT_LABEL ?: 'Jenkins-Agent'
+    }
+    environment {
+        AWS_REGION  = 'us-east-1'
+    }
+    stages {
+        stage('Checkout Repository') {
+            steps {
+                git url: 'https://github.com/Yoram-Izilov/DevOpsProject.git', branch: 'main'
+            }
+        }
+        stage('Update Config & set ENV') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials'
+                ]]) {
+                    sh '''
+                    aws eks update-kubeconfig --region us-east-1 --name carmel-yoram-eks-cluster
+                    export EXTERNAL_DNS_ROLE=$(eksctl get iamserviceaccount --cluster carmel-yoram-eks-cluster | grep external-dns | awk '{print $3}')
+                    '''
+                }
+            }
+        }
+        stage('Update yaml files') {
+            steps {
+                script {
+                    // Load your deployment YAML
+                    def yamlContent = readFile 'deployment.yaml'
+                    
+                    // Replace the placeholder with the actual value
+                    yamlContent = yamlContent.replace('{{ subnet }}', "${SUBNET}")
+                    
+                    // Write the updated YAML to a file
+                    writeFile file: 'updated-deployment.yaml', text: yamlContent
+
+                    // Deploy using kubectl
+                    sh 'kubectl apply -f updated-deployment.yaml'
+                }
+            }
+        }
+    }
+}

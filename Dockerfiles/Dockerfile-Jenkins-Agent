@@ -1,0 +1,21 @@
+FROM jenkins/agent:latest-jdk17 
+
+# Switch to root user
+USER root
+
+# Install Docker, AWS CLI, Kubectl, and Helm
+RUN apt-get update && \
+    apt-get install -y awscli curl gnupg2 && \
+    # Install kubectl
+    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
+    # Install Helm
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash && \
+    # Install eksctl
+    curl --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp && \
+    mv /tmp/eksctl /usr/local/bin/ && \
+    chmod +x /usr/local/bin/eksctl && \
+    apt-get clean
+
+# Switch back to the jenkins user
+USER jenkins

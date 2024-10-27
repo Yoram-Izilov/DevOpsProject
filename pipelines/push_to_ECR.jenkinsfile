@@ -1,0 +1,64 @@
+pipeline {
+    agent {
+        label env.JENKINS_AGENT_LABEL ?: 'Jenkins-Agent'
+    }
+    environment {
+        AWS_REGION  = 'us-east-1'
+    }
+    stages {
+        stage('Login to ECR') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials'
+                ]]) {
+                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 992382545251.dkr.ecr.us-east-1.amazonaws.com'
+                }
+            }
+        }
+        stage('Checkout Repository') {
+            steps {
+                // Clone the repository to ensure files are present
+                git url: 'https://github.com/Yoram-Izilov/DevOpsProject.git', branch: 'main'
+            }
+        }
+        stage('Copy WSGI Dockerfile') {
+            steps {
+                sh 'cp ./Dockerfiles/Dockerfile-WSGI ./status-page/Dockerfile'
+                sh 'docker --version'
+            }
+        }
+        stage('build the WSGI image') {
+            steps {
+                sh '''
+                cd ./status-page
+                docker build -t yoram-carmel-status-page/wsgi .
+                '''
+            }
+        }
+        stage('Tag the image') {
+            steps {
+                sh 'docker tag yoram-carmel-status-page/wsgi:latest 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/wsgi:latest'
+            }
+        }
+        stage('Push the image to ECR') {
+            steps {
+               withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials'
+                ]]) {
+                    //sh 'docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/wsgi:latest'
+                    sh 'echo you did it!'
+                }
+            }
+        }
+        stage('Deploy to Production') {
+            steps {
+                script {
+                    // Trigger the CD job only if the CI job was successful
+                    build job: 'Deploy_To_EKS', wait: true
+                }
+            }
+        }
+    }
+}
