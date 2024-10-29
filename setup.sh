@@ -73,7 +73,7 @@ helm install monitoring prometheus-community/kube-prometheus-stack -n "$NAMESPAC
 
 # Wait for pods to be ready
 echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
-kubectl wait --for=condition=available --timeout=60s deployment/kube-prometheus-stack -n "$NAMESPACE"
+kubectl wait --for=condition=available --timeout=600s deployment/kube-prometheus-stack -n "$NAMESPACE"
 
 echo "Installation completed."
 
@@ -90,7 +90,7 @@ SUBNETS_CSV=$(echo $SUBNETS | tr '\t' ',')  # Convert tabs to commas
 INGRESS_YAML_FILE="./Helm/app-yamls/nginx-ingress.yaml"
 
 # Replace public_subnet_a,public_subnet_b with actual subnets in the Ingress YAML
-sed -i "s/public_subnet_a,public_subnet_b/$SUBNETS_CSV/g" "$INGRESS_YAML_FILE"
+sed -i "s|public_subnet_a,public_subnet_b|$SUBNETS_CSV|g" "$INGRESS_YAML_FILE"
 
 # Confirm the replacement
 echo "Updated Ingress YAML with subnets: $SUBNETS_CSV"
@@ -102,7 +102,7 @@ EXTERNAL_DNS_ROLE=$(eksctl get iamserviceaccount --cluster carmel-yoram-eks-clus
 DNS_YAML_FILE="./Helm/external-DNS.yaml"
 
 # Replace public_subnet_a,public_subnet_b with actual subnets in the Ingress YAML
-sed -i "s/DNS-ROLE/$EXTERNAL_DNS_ROLE/g" "$DNS_YAML_FILE"
+sed -i "s|DNS-ROLE|$EXTERNAL_DNS_ROLE|g" "$DNS_YAML_FILE"
 
 # Confirm the replacement
 echo "Updated Ingress YAML with subnets: $EXTERNAL_DNS_ROLE"
