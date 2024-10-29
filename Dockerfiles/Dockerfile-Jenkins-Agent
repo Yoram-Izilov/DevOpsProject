@@ -3,9 +3,12 @@ FROM jenkins/agent:latest-jdk17
 # Switch to root user
 USER root
 
-# Install Docker, AWS CLI, Kubectl, and Helm
 RUN apt-get update && \
+    # Install AWS CLI
     apt-get install -y awscli curl gnupg2 && \
+    #Install Docker
+    apt install docker.io -y && \
+    usermod -aG docker Jenkins && \
     # Install kubectl
     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && \
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
