@@ -1,7 +1,7 @@
 #!/bin/bash
 
 kubectl delete -f ./Helm/app-yamls/
-kubectl delete -f $EXTERNAL_DNS_ROLE
+kubectl delete -f ./Helm/external-DNS.yaml
 kubectl delete -f ./Helm/ingressclass-resource.yaml
 
 helm uninstall monitoring prometheus-community/kube-prometheus-stack -n monitoring

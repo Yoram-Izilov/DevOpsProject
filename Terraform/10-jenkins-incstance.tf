@@ -43,7 +43,7 @@ resource "aws_instance" "jenkins_server" {
   subnet_id               = aws_subnet.private_a1.id
   vpc_security_group_ids  = [aws_security_group.jenkins_ec2_sg.id] 
   key_name = "yoram-key-home" 
-  
+
   tags = {
     Name = "carmel-yoram-jenkins"
   }

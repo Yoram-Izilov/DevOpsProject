@@ -48,7 +48,7 @@ eksctl get iamserviceaccount --cluster "$CLUSTER_NAME"
 
 # Define variables for Monitoring 
 NAMESPACE="monitoring"
-NODE_SELECTOR="nodeGroup=monitoring-group"  # Replace with your actual node label
+NODE_SELECTOR="monitoring-group"  # Replace with your actual node label
 
 # Add Helm repositories
 echo "Adding Helm repositories..."
@@ -109,6 +109,6 @@ echo "Updated Ingress YAML with subnets: $EXTERNAL_DNS_ROLE"
 
 echo "Applying yamls..."
 kubectl apply -f ./Helm/ingressclass-resource.yaml
-kubectl apply -f $EXTERNAL_DNS_ROLE
+kubectl apply -f $DNS_YAML_FILE
 kubectl apply -f ./Helm/app-yamls/
 
