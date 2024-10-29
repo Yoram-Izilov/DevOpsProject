@@ -6,5 +6,5 @@ RUN mkdir -p /opt/status-page/statuspage/static/
 
 # Copy your custom NGINX config and Static files
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-COPY ../statuspage/static/ /opt/status-page/statuspage/static/
+COPY ./static/ /opt/status-page/statuspage/static/
 
