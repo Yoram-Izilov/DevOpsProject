@@ -24,21 +24,21 @@ pipeline {
         }
         stage('Copy WSGI Dockerfile') {
             steps {
-                sh 'cp ./Dockerfiles/Dockerfile-WSGI ./status-page/Dockerfile'
+                sh 'cp ./Dockerfiles/Dockerfile-NGINX ./status-page/contrib/Dockerfile'
                 sh 'docker --version'
             }
         }
         stage('build the WSGI image') {
             steps {
                 sh '''
-                cd ./status-page
-                docker build -t yoram-carmel-status-page/wsgi .
+                cd ./status-page/contrib
+                docker build -t yoram-carmel-status-page/nginx .
                 '''
             }
         }
         stage('Tag the image') {
             steps {
-                sh 'docker tag yoram-carmel-status-page/wsgi:latest 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/wsgi:latest'
+                sh 'docker tag yoram-carmel-status-page/nginx:latest 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx:prometheus'
             }
         }
         stage('Push the image to ECR') {
@@ -47,17 +47,17 @@ pipeline {
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials'
                 ]]) {
-                    sh 'docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/wsgi:latest'
+                    sh 'docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx:prometheus'
                 }
             }
         }
-        stage('Deploy to Production') {
-            steps {
-                script {
-                    // Trigger the CD job only if the CI job was successful
-                    build job: 'Deploy_To_EKS', wait: true
-                }
-            }
-        }
+        // stage('Deploy to Production') {
+        //     steps {
+        //         script {
+        //             // Trigger the CD job only if the CI job was successful
+        //             build job: 'Deploy_To_EKS', wait: true
+        //         }
+        //     }
+        // }
     }
 }
