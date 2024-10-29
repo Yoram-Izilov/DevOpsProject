@@ -84,7 +84,7 @@ echo "Installation completed."
 SUBNETS=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" "Name=tag:Name,Values=*public*" --query "Subnets[*].SubnetId" --output text)
 
 # Create a comma-separated list of subnets
-SUBNETS_CSV=$(echo $SUBNETS | tr '\t' ',')  # Convert tabs to commas
+SUBNETS_CSV=$(echo $SUBNETS | tr ' ' ',')  # Convert tabs to commas
 
 # Path to the Ingress YAML file
 INGRESS_YAML_FILE="./Helm/app-yamls/nginx-ingress.yaml"
