@@ -16,14 +16,12 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx:latest
+          image: 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx:prometheus
           imagePullPolicy: Always
           ports:
             - containerPort: 80
-        
         - name: nginx-exporter
           image: nginx/nginx-prometheus-exporter:latest
-          args:
-            - "-nginx.scrape-uri=http://nginx-service:80/nginx_status"
+          args: ["-nginx.scrape-uri", "http://nginx-service:80/nginx_status"]
           ports:
             - containerPort: 9113

@@ -66,10 +66,7 @@ kubectl create namespace "$NAMESPACE"
 # Install Prometheus Kube Prometheus Stack with node selector
 echo "Installing Prometheus Kube Prometheus Stack in namespace '$NAMESPACE'..."
 helm install monitoring prometheus-community/kube-prometheus-stack -n "$NAMESPACE" \
-  --set defaultRules.prometheus.enabled=false \
-  --set prometheus.prometheusSpec.nodeSelector."$NODE_SELECTOR"="true" \
-  --set alertmanager.alertmanagerSpec.nodeSelector."$NODE_SELECTOR"="true" \
-  --set grafana.nodeSelector."$NODE_SELECTOR"="true"
+  -f ./Helm/values.yaml
 
 # Wait for pods to be ready
 echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
