@@ -53,7 +53,7 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n ku
   --set vpcId="$VPC_ID" --set image.repository="$ECR_REPO"
 
 echo "Waiting for AWS Load Balancer Controller pods to be ready..."
-kubectl wait --for=condition=available --timeout=600s deployment/aws-load-balancer-controller -n kube-system
+kubectl wait --for=condition=available --timeout=300s deployment/aws-load-balancer-controller -n kube-system
 
 ############### Monitoring - Setup ###############
 
@@ -72,7 +72,7 @@ helm install monitoring prometheus-community/kube-prometheus-stack -n "$NAMESPAC
 
 # Wait for pods to be ready
 echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
-kubectl wait --for=condition=available --timeout=600s deployment/kube-prometheus-stack -n "$NAMESPACE"
+kubectl wait --for=condition=available --timeout=300s deployment/kube-prometheus-stack -n "$NAMESPACE"
 
 echo "Installation completed."
 
