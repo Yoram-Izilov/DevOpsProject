@@ -6,7 +6,15 @@ CLUSTER_NAME="carmel-yoram-eks-cluster"
 
 aws eks update-kubeconfig --region "$REGION" --name "$CLUSTER_NAME"
 
-kubectl delete -f ./Helm/app-yamls/
+
+helm uninstall fluent-bit -n logging
+helm uninstall elasticsearch -n logging
+helm uninstall kibana -n logging
+
+
+kubectl delete -f ./Helm/logging/
+kubectl delete -f ./Helm/nginx/
+kubectl delete -f ./Helm/app/
 kubectl delete -f ./Helm/external-DNS.yaml
 kubectl delete -f ./Helm/ingressclass-resource.yaml
 
