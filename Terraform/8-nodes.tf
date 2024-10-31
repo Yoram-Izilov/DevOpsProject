@@ -14,8 +14,8 @@ resource "aws_eks_node_group" "app" {
   instance_types = ["t2.medium"]
 
   scaling_config {
-    desired_size = 1
-    min_size     = 1
+    desired_size = 2
+    min_size     = 2
     max_size     = 2
   }
 

@@ -124,7 +124,9 @@ FLUENT_YAML_FILE="./Helm/logging/fluentbit-values.yaml"
 sed -i "s|fluentbit-username|$fluentbit-username|g" "$FLUENT_YAML_FILE"
 sed -i "s|fluentbit-password|$fluentbit-password|g" "$FLUENT_YAML_FILE"
 # Confirm the replacement
-echo "Updated Ingress YAML with subnets: $EXTERNAL_DNS_ROLE"
+echo "Updated fluentbit-values with username and password"
+echo "$fluentbit-username"
+echo "$fluentbit-password"
 
 ############### APPLYING YAMLS ###############
 
@@ -133,5 +135,5 @@ kubectl apply -f ./Helm/ingressclass-resource.yaml
 kubectl apply -f $DNS_YAML_FILE
 kubectl apply -f ./Helm/app/
 kubectl apply -f ./Helm/nginx/
-helm install kibana --set service.type=LoadBalancer elastic/kibana -n logging
+helm install kibana elastic/kibana -n logging
 helm install fluent-bit fluent/fluent-bit -f ./Helm/logging/fluentbit-values.yaml -n logging
