@@ -454,8 +454,8 @@ config:
         Type  _doc
         Host elasticsearch-master
         Port 9200
-        HTTP_User elastic
-        HTTP_Passwd cbTQj1qxRIPNF5uc
+        HTTP_User fluentbit-username
+        HTTP_Passwd fluentbit-password
         tls On
         tls.verify Off
         Logstash_Format On
