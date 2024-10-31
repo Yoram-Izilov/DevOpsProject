@@ -46,9 +46,9 @@ helm repo add eks https://aws.github.io/eks-charts
 echo "Updating Helm repositories..."
 helm repo update
 
-# Install AWS Load Balancer Controller using Helm --set serviceAccount.create=false
+# Install AWS Load Balancer Controller using Helm 
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
-  --set clusterName="$CLUSTER_NAME" \
+  --set clusterName="$CLUSTER_NAME" --set serviceAccount.create=false \
   --set serviceAccount.name=aws-load-balancer-controller --set region="$REGION" \
   --set vpcId="$VPC_ID" --set image.repository="$ECR_REPO"
 
