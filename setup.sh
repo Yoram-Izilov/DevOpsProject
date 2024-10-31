@@ -133,7 +133,7 @@ echo "$fluentbit-password"
 echo "Applying yamls..."
 kubectl apply -f ./Helm/ingressclass-resource.yaml
 kubectl apply -f $DNS_YAML_FILE
-kubectl apply -f ./Helm/app/
-kubectl apply -f ./Helm/nginx/
 helm install kibana elastic/kibana -n logging
 helm install fluent-bit fluent/fluent-bit -f ./Helm/logging/fluentbit-values.yaml -n logging
+kubectl apply -f ./Helm/app/
+kubectl apply -f ./Helm/nginx/
