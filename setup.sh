@@ -21,6 +21,18 @@ fi
 # Update kubeconfig
 aws eks update-kubeconfig --region "$REGION" --name "$CLUSTER_NAME"
 
+# Add Helm repositories
+echo "Adding Helm repositories..."
+helm repo add stable https://charts.helm.sh/stable
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add elastic https://helm.elastic.co
+helm repo add fluent https://fluent.github.io/helm-charts
+helm repo add eks https://aws.github.io/eks-charts
+
+# Update Helm repositories
+echo "Updating Helm repositories..."
+helm repo update
+
 # Associate IAM OIDC provider
 eksctl utils associate-iam-oidc-provider --region "$REGION" --cluster "$CLUSTER_NAME" --approve
 
@@ -28,10 +40,6 @@ eksctl utils associate-iam-oidc-provider --region "$REGION" --cluster "$CLUSTER_
 eksctl create iamserviceaccount --cluster="$CLUSTER_NAME" --namespace=kube-system \
   --name=aws-load-balancer-controller --attach-policy-arn="$AWS_LOAD_BALANCER_POLICY" \
   --override-existing-serviceaccounts --approve
-
-# Add EKS Helm repository and update
-helm repo add eks https://aws.github.io/eks-charts
-helm repo update
 
 # Install AWS Load Balancer Controller using Helm
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
@@ -44,23 +52,11 @@ eksctl create iamserviceaccount --name external-dns --namespace default \
   --cluster "$CLUSTER_NAME" --attach-policy-arn="$EXTERNAL_DNS_POLICY" \
   --approve --override-existing-serviceaccounts
 
-# Get IAM service account details
-eksctl get iamserviceaccount --cluster "$CLUSTER_NAME"
-
 ############### Monitoring - Setup ###############
 
 # Define variables for Monitoring 
 NAMESPACE="monitoring"
 NODE_SELECTOR="monitoring-group"  # Replace with your actual node label
-
-# Add Helm repositories
-echo "Adding Helm repositories..."
-helm repo add stable https://charts.helm.sh/stable
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-
-# Update Helm repositories
-echo "Updating Helm repositories..."
-helm repo update
 
 # Create monitoring namespace
 echo "Creating namespace '$NAMESPACE'..."
@@ -69,7 +65,7 @@ kubectl create namespace "$NAMESPACE"
 # Install Prometheus Kube Prometheus Stack with node selector
 echo "Installing Prometheus Kube Prometheus Stack in namespace '$NAMESPACE'..."
 helm install monitoring prometheus-community/kube-prometheus-stack -n "$NAMESPACE" \
-  -f ./Helm/values.yaml
+  -f ./Helm/prometheus-values.yaml
 
 # Wait for pods to be ready
 echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
@@ -81,13 +77,13 @@ echo "Installation completed."
 
 NAMESPACE="logging"
 
-eksctl create iamserviceaccount --name ebs-csi-controller-sa --namespace kube-system --cluster observability \
+eksctl create iamserviceaccount --name ebs-csi-controller-sa --namespace kube-system --cluster "$CLUSTER_NAME" \
   --role-name AmazonEKS_EBS_CSI_DriverRole --role-only \
   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --approve
 
 ARN=$(aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole --query 'Role.Arn' --output text)
 
-eksctl create addon --cluster observability --name aws-ebs-csi-driver --version latest \
+eksctl create addon --cluster "$CLUSTER_NAME" --name aws-ebs-csi-driver --version latest \
   --service-account-role-arn $ARN --force
 
 kubectl create namespace logging
@@ -138,5 +134,4 @@ kubectl apply -f $DNS_YAML_FILE
 kubectl apply -f ./Helm/app/
 kubectl apply -f ./Helm/nginx/
 helm install kibana --set service.type=LoadBalancer elastic/kibana -n logging
-helm repo add fluent https://fluent.github.io/helm-charts
-helm install fluent-bit fluent/fluent-bit -f fluentbit-values.yaml -n logging
+helm install fluent-bit fluent/fluent-bit -f ./Helm/logging/fluentbit-values.yaml -n logging
