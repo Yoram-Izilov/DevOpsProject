@@ -119,17 +119,17 @@ sed -i "s|DNS-ROLE|$EXTERNAL_DNS_ROLE|g" "$DNS_YAML_FILE"
 echo "Updated Ingress YAML with subnets: $EXTERNAL_DNS_ROLE"
 
 # Get fluentbit username and password
-fluentbit-username=$(kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonpath='{.data.username}' | base64 -d)
-fluentbit-password=$(kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d)
+fluentbit_username=$(kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonpath='{.data.username}' | base64 -d)
+fluentbit_password=$(kubectl get secrets --namespace=logging elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d)
 # Path to the fluentbit values YAML file
 FLUENT_YAML_FILE="./Helm/logging/fluentbit-values.yaml"
-# Replace public_subnet_a,public_subnet_b with actual subnets in the Ingress YAML
-sed -i "s|fluentbit-username|$fluentbit-username|g" "$FLUENT_YAML_FILE"
-sed -i "s|fluentbit-password|$fluentbit-password|g" "$FLUENT_YAML_FILE"
+# Replace public_subnet_a, public_subnet_b with actual subnets in the Ingress YAML
+sed -i "s|fluentbit-username|$fluentbit_username|g" "$FLUENT_YAML_FILE"
+sed -i "s|fluentbit-password|$fluentbit_password|g" "$FLUENT_YAML_FILE"
 # Confirm the replacement
 echo "Updated fluentbit-values with username and password"
-echo "$fluentbit-username"
-echo "$fluentbit-password"
+echo "$fluentbit_username"
+echo "$fluentbit_password"
 
 ############### APPLYING YAMLS ###############
 

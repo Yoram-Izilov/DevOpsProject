@@ -364,7 +364,7 @@ networkPolicy:
 luaScripts:
   setIndex.lua: |
     function set_index(tag, timestamp, record)
-        index = "abhishek-"
+        index = "carmel-yoram-"
         if record["kubernetes"] ~= nil then
             if record["kubernetes"]["namespace_name"] == "logging" then
                 return -1, timestamp, record  -- Skip logs from the logging namespace
