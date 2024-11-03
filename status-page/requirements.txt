@@ -22,6 +22,7 @@ netaddr==1.2.1
 phonenumbers==8.13.37
 psycopg2==2.9.9
 pysvg-py3==0.2.2.post3
+rq=1.16.2
 rq-scheduler==0.13.1
 segno==1.6.1
 swagger-spec-validator==3.0.3
