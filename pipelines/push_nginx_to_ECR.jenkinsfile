@@ -38,7 +38,7 @@ pipeline {
         }
         stage('Tag the image') {
             steps {
-                sh 'docker tag yoram-carmel-status-page/nginx:latest 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx:prometheus'
+                sh 'docker tag yoram-carmel-status-page/nginx:latest 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx:latest'
             }
         }
         stage('Push the image to ECR') {
@@ -47,7 +47,7 @@ pipeline {
                     $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-credentials'
                 ]]) {
-                    sh 'docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx:prometheus'
+                    sh 'docker push 992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx:latest'
                 }
             }
         }
