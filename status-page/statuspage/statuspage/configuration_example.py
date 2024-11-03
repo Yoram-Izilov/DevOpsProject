@@ -6,16 +6,16 @@
 # write access to the server via any other hostnames. The first FQDN in the list will be treated as the preferred name.
 #
 # Example: ALLOWED_HOSTS = ['status-page.example.com', 'status-page.internal.local']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['status-page.yoram-izilov.com', 'https://status-page.yoram-izilov.com', '*.yoram-izilov.com']
 
 # PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
 #   https://docs.djangoproject.com/en/stable/ref/settings/#databases
 DATABASE = {
     'NAME': 'status-page',         # Database name
-    'USER': '',               # PostgreSQL username
-    'PASSWORD': '',           # PostgreSQL password
-    'HOST': 'localhost',      # Database server
-    'PORT': '',               # Database port (leave blank for default)
+    'USER': 'status_page',               # PostgreSQL username
+    'PASSWORD': 'password',           # PostgreSQL password
+    'HOST': 'yoram-carmel-postgres-db.cx248m4we6k7.us-east-1.rds.amazonaws.com',      # Database server
+    'PORT': '5432',               # Database port (leave blank for default)
     'CONN_MAX_AGE': 300,      # Max database connection age
 }
 
@@ -23,7 +23,7 @@ DATABASE = {
 # for each. Full connection details are required.
 REDIS = {
     'tasks': {
-        'HOST': 'localhost',
+        'HOST': 'yoram-carmel-redis-cluster.7fftml.0001.use1.cache.amazonaws.com',
         'PORT': 6379,
         # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
         # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
@@ -36,7 +36,7 @@ REDIS = {
         # 'INSECURE_SKIP_TLS_VERIFY': False,
     },
     'caching': {
-        'HOST': 'localhost',
+        'HOST': 'yoram-carmel-redis-cluster.7fftml.0001.use1.cache.amazonaws.com',
         'PORT': 6379,
         # Comment out `HOST` and `PORT` lines and uncomment the following if using Redis Sentinel
         # 'SENTINELS': [('mysentinel.redis.example.com', 6379)],
@@ -57,7 +57,7 @@ SITE_URL = ""
 # For optimal security, SECRET_KEY should be at least 50 characters in length and contain a mix of letters, numbers, and
 # symbols. Status-Page will not run without this defined. For more information, see
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-SECRET_KEY
-SECRET_KEY = ''
+SECRET_KEY = 'W(lrMB-6ojf4bkg59El*1A^IV(5t85GuluyIdMj*KcTNye&l4I'
 
 #
 # Optional Settings
@@ -89,10 +89,11 @@ BASE_PATH = ''
 # CORS_ORIGIN_REGEX_WHITELIST. For more information, see https://github.com/ottoyiu/django-cors-headers
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
-    # 'https://hostname.example.com',
+    'https://status-page.yoram-izilov.com',
+    'status-page.yoram-izilov.com'
 ]
 CORS_ORIGIN_REGEX_WHITELIST = [
-    # r'^(https?://)?(\w+\.)?example\.com$',
+    r'^(https?://)?(\w+\.)?yoram-izilov\.com$',
 ]
 
 # Set to True to enable server debugging. WARNING: Debugging introduces a substantial performance penalty and may reveal
@@ -119,6 +120,7 @@ INTERNAL_IPS = ('127.0.0.1', '::1')
 # Enable custom logging. Please see the Django documentation for detailed guidance on configuring custom logs:
 #   https://docs.djangoproject.com/en/stable/topics/logging/
 LOGGING = {}
+
 
 # The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
 # re-authenticate. (Default: 1209600 [14 days])
@@ -150,6 +152,9 @@ RQ_DEFAULT_TIMEOUT = 300
 
 # The name to use for the csrf token cookie.
 CSRF_COOKIE_NAME = 'csrftoken'
+
+# self added
+CSRF_TRUSTED_ORIGINS = ['https://status-page.yoram-izilov.com', 'https://*.yoram-izilov.com']
 
 # The name to use for the session cookie.
 SESSION_COOKIE_NAME = 'sessionid'
