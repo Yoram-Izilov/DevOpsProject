@@ -91,7 +91,7 @@ eksctl create addon --cluster "$CLUSTER_NAME" --name aws-ebs-csi-driver --versio
 
 kubectl create namespace logging
 
-helm install elasticsearch --set replicas=2 --set volumeClaimTemplate.storageClassName=gp2 \
+helm install elasticsearch --set replicas=1 --set volumeClaimTemplate.storageClassName=gp2 \
   --set persistence.labels.enabled=true elastic/elasticsearch -n logging
 
 echo "Installation completed."
@@ -136,7 +136,7 @@ echo "$fluentbit_password"
 echo "Applying yamls..."
 kubectl apply -f ./Helm/ingressclass-resource.yaml
 kubectl apply -f $DNS_YAML_FILE
-helm install kibana elastic/kibana -n logging
 helm install fluent-bit fluent/fluent-bit -f ./Helm/logging/fluentbit-values.yaml -n logging
+helm install kibana elastic/kibana -n logging
 kubectl apply -f ./Helm/app/
 kubectl apply -f ./Helm/nginx/

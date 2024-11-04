@@ -32,7 +32,7 @@ resource "aws_security_group" "jenkins_ec2_sg" {
   }
 
   tags = {
-    Name = "EC2 Security Group"
+    Name = "Jenkins Security Group"
   }
 }
 
@@ -55,7 +55,7 @@ resource "aws_lb" "jenkins_alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.jenkins_ec2_sg.id]
-  subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+  subnets            = [aws_subnet.public_a1.id, aws_subnet.public_b.id]
 
   enable_deletion_protection = false
 
