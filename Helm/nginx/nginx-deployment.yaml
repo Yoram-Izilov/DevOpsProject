@@ -20,9 +20,3 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 80
-      #     volumeMounts:
-      #       - name: nginx-logs
-      #         mountPath: /var/log/nginx
-      # volumes:
-      #   - name: nginx-logs
-      #     emptyDir: {}  # Temporary storage within the pod

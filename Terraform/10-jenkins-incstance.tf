@@ -1,19 +1,12 @@
 # Create Security Group for Jenkins Instance
 resource "aws_security_group" "jenkins_ec2_sg" {
   vpc_id = aws_vpc.main.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] 
-  }
-
+  
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] 
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -22,7 +15,6 @@ resource "aws_security_group" "jenkins_ec2_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] 
   }
-
 
   egress {
     from_port   = 0
@@ -55,7 +47,7 @@ resource "aws_lb" "jenkins_alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.jenkins_ec2_sg.id]
-  subnets            = [aws_subnet.public_a1.id, aws_subnet.public_b.id]
+  subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 
   enable_deletion_protection = false
 
