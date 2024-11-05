@@ -1,0 +1,205 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Repository
+# metadata:
+#   name: prometheus-community
+#   namespace: argocd
+# spec:
+#   type: helm
+#   url: https://prometheus-community.github.io/helm-charts
+#   name: prometheus-community
+#   insecure: true  # Set to true if the repo is not using HTTPS
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Repository
+# metadata:
+#   name: elastic-helm-charts
+#   namespace: argocd
+# spec:
+#   type: helm
+#   url: https://helm.elastic.co
+#   name: elastic-helm-charts
+#   insecure: true  # Set to true if the repo is not using HTTPS
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Repository
+# metadata:
+#   name: fluent-bit
+#   namespace: argocd
+# spec:
+#   type: helm
+#   url: https://fluent.github.io/helm-charts
+#   name: fluent-bit
+#   insecure: true  # Set to true if the repo is not using HTTPS
+# ---
+# The DNS and ALB files
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: resources
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Yoram-Izilov/argocd.git
+    targetRevision: HEAD
+    path: resources
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+---
+# The WSGI files
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wsgi-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Yoram-Izilov/argocd.git
+    targetRevision: HEAD
+    path: app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+---
+# The nginx files
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Yoram-Izilov/argocd.git
+    targetRevision: HEAD
+    path: nginx
+  destination: 
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+# ---
+# # prometheus stack
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: prometheus
+#   namespace: argocd
+# spec:
+#   project: default
+#   sources:
+#     - chart: kube-prometheus-stack 
+#       repoURL: https://prometheus-community.github.io/helm-charts     
+#       targetRevision: "65.7.0"
+#       helm:
+#         valueFiles:
+#         - $values_repo/values/prometheus-values.yaml
+#     - repoURL: https://github.com/Yoram-Izilov/argocd.git
+#       targetRevision: HEAD
+#       ref: values_repo
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: monitoring
+#   syncPolicy:
+#     syncOptions:
+#     - CreateNamespace=true
+#     automated:
+#       prune: true
+#       selfHeal: true
+# ---
+# # elasticsearch 
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: elasticsearch
+#   namespace: argocd
+# spec:
+#   project: default
+#   sources:
+#     - chart: elasticsearch 
+#       repoURL: https://helm.elastic.co    
+#       targetRevision: "8.5.1"
+#       helm:
+#         valueFiles:
+#         - $values_repo/values/elastic-values.yaml
+#     - repoURL: https://github.com/Yoram-Izilov/argocd.git
+#       targetRevision: HEAD
+#       ref: values_repo
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: logging
+#   syncPolicy:
+#     syncOptions:
+#     - CreateNamespace=true
+#     automated:
+#       prune: true
+#       selfHeal: true
+# ---
+# # kibana
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: kibana
+#   namespace: argocd
+# spec:
+#   project: default
+#   sources:
+#     - chart: kibana 
+#       repoURL: https://helm.elastic.co  
+#       targetRevision: "8.5.1"
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: logging
+#   syncPolicy:
+#     syncOptions:
+#     - CreateNamespace=true
+#     automated:
+#       prune: true
+#       selfHeal: true
+---
+# fluent-bit
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluent-bit
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: fluent-bit 
+      repoURL: https://fluent.github.io/helm-charts   
+      targetRevision: "0.47.10"
+      helm:
+        valueFiles:
+        - $values_repo/values/fluentbit-values.yaml  
+    - repoURL: https://github.com/Yoram-Izilov/argocd.git
+      targetRevision: HEAD
+      ref: values_repo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: logging
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+

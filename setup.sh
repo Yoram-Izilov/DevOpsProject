@@ -78,7 +78,54 @@ echo "Updated Ingress YAML with subnets: $EXTERNAL_DNS_ROLE"
 echo "$SUBNETS_CSV"
 echo "$EXTERNAL_DNS_ROLE"
 
+############### Monitoring - Setup ###############
+
+# Define variables for Monitoring
+NAMESPACE="monitoring"
+NODE_SELECTOR="monitoring-group"  # Replace with your actual node label
+
+# Create monitoring namespace
+echo "Creating namespace '$NAMESPACE'..."
+kubectl create namespace "$NAMESPACE"
+
+# Install Prometheus Kube Prometheus Stack with node selector
+echo "Installing Prometheus Kube Prometheus Stack in namespace '$NAMESPACE'..."
+helm install monitoring prometheus-community/kube-prometheus-stack \
+  -f ./Helm/prometheus-values.yaml -n "$NAMESPACE"
+
+# Wait for pods to be ready
+echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
+kubectl wait --for=condition=available --timeout=300s deployment/kube-prometheus-stack -n "$NAMESPACE"
+
+echo "Installation completed."
+
+############### Logging ###############
+
+NAMESPACE="logging"
+
+eksctl create iamserviceaccount --name ebs-csi-controller-sa --namespace kube-system --cluster "$CLUSTER_NAME" \
+  --role-name AmazonEKS_EBS_CSI_DriverRole --role-only \
+  --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --approve
+
+ARN=$(aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole --query 'Role.Arn' --output text)
+
+eksctl create addon --cluster "$CLUSTER_NAME" --name aws-ebs-csi-driver --version latest \
+  --service-account-role-arn $ARN --force
+
+kubectl create namespace logging
+
+helm install elasticsearch --set replicas=2 --set volumeClaimTemplate.storageClassName=gp2 \
+  --set persistence.labels.enabled=true elastic/elasticsearch -n logging
+
+# Wait for pods to be ready
+echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
+kubectl wait --for=condition=available --timeout=300s deployment/elasticsearch -n "$NAMESPACE"
+echo "Installation completed."
+
+helm install kibana elastic/kibana -n logging
+
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode && echo
+# kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | ForEach-Object { [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) }
