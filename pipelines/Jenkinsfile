@@ -1,0 +1,116 @@
+pipeline {
+    agent {
+        label env.JENKINS_AGENT_LABEL ?: 'Jenkins-Agent'
+    }
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_APP_REPO = '992382545251.dkr.ecr.us-east-1.amazonaws.com/wsgi'
+        ECR_NGINX_REPO = '992382545251.dkr.ecr.us-east-1.amazonaws.com/nginx'
+        AWS_CREDENTIALS_ID = 'aws-credentials'
+        DEPLOY_REPO_URL = 'https://github.com/Yoram-Izilov/argocd' // deploy repo
+        DEPLOY_REPO_DIR = 'deploy-repo' // Directory to clone the repo
+        DEPLOYMENT_YAML_PATH = '.' // Path to your deployment YAML in the root directory
+        IMAGE_VERSION = "${env.BUILD_NUMBER}-${env.BUILD_ID}" // Using Jenkins build number for versioning
+    }
+
+    stages {
+        stage('Build & Scan WSGI') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID]]) {
+                        sh 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_APP_REPO'
+                        sh 'docker build -t statuspage-app:$IMAGE_VERSION ./statuspage'
+                        sh 'docker tag statuspage-app:$IMAGE_VERSION $ECR_APP_REPO:$IMAGE_VERSION'
+                        sh 'docker push $ECR_APP_REPO:$IMAGE_VERSION'
+                        sh 'trivy image --skip-update --severity HIGH,CRITICAL $ECR_APP_REPO:$IMAGE_VERSION'
+                    }
+                }
+            }
+        }
+
+        stage('Build & Scan Nginx') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID]]) {
+                        sh 'aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_NGINX_REPO'
+                        sh 'docker build --no-cache -t nginx-bop:$IMAGE_VERSION -f Dockerfile-nginx .'
+                        sh 'docker tag nginx-bop:$IMAGE_VERSION $ECR_NGINX_REPO:$IMAGE_VERSION'
+                        sh 'docker push $ECR_NGINX_REPO:$IMAGE_VERSION'
+                        sh 'trivy image --skip-update --severity HIGH,CRITICAL $ECR_NGINX_REPO:$IMAGE_VERSION'
+                    }
+                }
+            }
+        }
+
+        stage('Update ArgoCD Repo') {
+            steps {
+                script {
+                    // Clone the deployment repo
+                    sh 'git clone $DEPLOY_REPO_URL $DEPLOY_REPO_DIR'
+                    dir("$DEPLOY_REPO_DIR") {
+                        // Update the image tag in all YAML files in the root directory
+                        sh '''
+                        find . -type f -name "*.yaml" | while read -r file; do
+                            if [ -f "$file" ]; then
+                                sed -i "s|image: $ECR_APP_REPO:.*|image: $ECR_APP_REPO:$IMAGE_VERSION|" "$file"
+                                sed -i "s|image: $ECR_NGINX_REPO:.*|image: $ECR_NGINX_REPO:$IMAGE_VERSION|" "$file"
+                            else
+                                echo "No YAML files found in the root directory"
+                            fi
+                        done
+                        '''
+                        // Commit and push changes using the GitHub token
+                        withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                            sh '''
+                            git config --global user.email "izilovy@gmail.com"
+                            git config --global user.name "Yoram-Izilov"
+                            git remote set-url origin https://$GITHUB_TOKEN@github.com/Yoram-Izilov/argocd
+                            git add .
+                            git commit -m "Update image to version $IMAGE_VERSION"
+                            git push origin main
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Remove all Docker Images') {
+            steps {
+                script {
+                    // Remove all Docker images after processing
+                    sh '''
+                        images=$(docker images -q)
+                        if [ -n "$images" ]; then
+                            docker rmi -f $images
+                        else
+                            echo "No images to delete"
+                        fi
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Deletes the cloned repository
+                sh '''
+                    if [ -d "$DEPLOY_REPO_DIR" ]; then
+                        rm -rf $DEPLOY_REPO_DIR
+                        echo "Removed cloned repository: $DEPLOY_REPO_DIR"
+                    else
+                        echo "No repository to remove"
+                    fi
+                '''
+            }
+        }
+        success {
+            echo 'Finished CI pipeline successfully!'
+        }
+        failure {
+            echo 'CI pipeline failed :<'
+        }
+    }
+}

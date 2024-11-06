@@ -116,7 +116,7 @@ eksctl create addon --cluster "$CLUSTER_NAME" --name aws-ebs-csi-driver --versio
 kubectl create namespace logging
 
 helm install elasticsearch --set replicas=2 --set volumeClaimTemplate.storageClassName=gp2 \
-  --set persistence.labels.enabled=true elastic/elasticsearch -n logging
+--set persistence.labels.enabled=true elastic/elasticsearch -n logging  -f ./Helm/values/elastic-values.yaml -n "$NAMESPACE"
 
 # Wait for pods to be ready
 echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
