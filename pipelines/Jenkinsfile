@@ -4,8 +4,8 @@ pipeline {
     }
     environment {
         AWS_REGION = 'us-east-1'
-        ECR_APP_REPO = '992382545251.dkr.ecr.us-east-1.amazonaws.com/wsgi'
-        ECR_NGINX_REPO = '992382545251.dkr.ecr.us-east-1.amazonaws.com/nginx'
+        ECR_APP_REPO = '992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/wsgi'
+        ECR_NGINX_REPO = '992382545251.dkr.ecr.us-east-1.amazonaws.com/yoram-carmel-status-page/nginx'
         AWS_CREDENTIALS_ID = 'aws-credentials'
         DEPLOY_REPO_URL = 'https://github.com/Yoram-Izilov/argocd' // deploy repo
         DEPLOY_REPO_DIR = 'deploy-repo' // Directory to clone the repo
