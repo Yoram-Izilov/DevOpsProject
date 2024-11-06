@@ -68,7 +68,7 @@ kubectl create namespace "$NAMESPACE"
 # Install Prometheus Kube Prometheus Stack with node selector
 echo "Installing Prometheus Kube Prometheus Stack in namespace '$NAMESPACE'..."
 helm install monitoring prometheus-community/kube-prometheus-stack \
-  -f ./Helm/prometheus-values.yaml -n "$NAMESPACE"
+  -f ./Helm/values/prometheus-values.yaml -n "$NAMESPACE"
 
 # Wait for pods to be ready
 echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."

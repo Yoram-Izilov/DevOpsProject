@@ -44,6 +44,7 @@ eksctl create addon --cluster "$CLUSTER_NAME" --name aws-ebs-csi-driver --versio
 echo "Adds and updates EKS helm repository..."
 helm repo add eks https://aws.github.io/eks-charts
 helm repo add argo-cd https://argoproj.github.io/argo-helm
+helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
 
 # Install AWS Load Balancer Controller using Helm
@@ -91,7 +92,7 @@ kubectl create namespace "$NAMESPACE"
 # Install Prometheus Kube Prometheus Stack with node selector
 echo "Installing Prometheus Kube Prometheus Stack in namespace '$NAMESPACE'..."
 helm install monitoring prometheus-community/kube-prometheus-stack \
-  -f ./Helm/prometheus-values.yaml -n "$NAMESPACE"
+  -f ./Helm/values/prometheus-values.yaml -n "$NAMESPACE"
 
 # Wait for pods to be ready
 echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
@@ -122,10 +123,7 @@ echo "Waiting for pods to be ready in namespace '$NAMESPACE'..."
 kubectl wait --for=condition=available --timeout=300s deployment/elasticsearch -n "$NAMESPACE"
 echo "Installation completed."
 
-helm install kibana elastic/kibana -n logging
+helm install kibana elastic/kibana -n logging --set server.service.type=NodePort
 
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode && echo
-# kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | ForEach-Object { [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) }
+helm install argocd argo/argo-cd -n argocd --set server.insecure=true --set server.protocol=http --set server.service.type=NodePort
