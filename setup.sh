@@ -125,6 +125,6 @@ echo "Installation completed."
 
 helm install kibana elastic/kibana -n logging --set server.service.type=NodePort
 
-# argoCD installation - ingress handle ssl and https
+# argoCD installation - ingress handle ssl 
 kubectl create namespace argocd
 helm install argocd argo/argo-cd -n argocd --set server.insecure=true --set server.protocol=http --set server.service.type=NodePort
