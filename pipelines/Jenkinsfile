@@ -80,9 +80,25 @@ pipeline {
                 script {
                     // Remove all Docker images after processing
                     sh '''
+                        Get a list of all images
                         images=$(docker images -q)
+
+                        # Get a list of running container IDs
+                        running_containers=$(docker ps -q)
+
                         if [ -n "$images" ]; then
-                            docker rmi -f $images
+                            for image in $images; do
+                                # Check if the image is being used by any running container
+                                container_using_image=$(docker ps -aq --filter "ancestor=$image")
+                                
+                                if [ -n "$container_using_image" ]; then
+                                    echo "Skipping image $image because it is being used by running containers"
+                                else
+                                    # Remove the image if it's not being used by any running container
+                                    docker rmi -f $image
+                                    echo "Removed image $image"
+                                fi
+                            done
                         else
                             echo "No images to delete"
                         fi
