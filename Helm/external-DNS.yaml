@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   name: external-dns
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::992382545251:role/eksctl-carmel-yoram-eks-cluster-addon-iamserv-Role1-HnkyKqC3yzUh
+    eks.amazonaws.com/role-arn: arn:aws:iam::992382545251:role/eksctl-carmel-yoram-eks-cluster-addon-iamserv-Role1-8exV6ocEzM19
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
