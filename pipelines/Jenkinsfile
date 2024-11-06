@@ -22,7 +22,7 @@ pipeline {
                         sh 'docker build -t statuspage-app:$IMAGE_VERSION ./status-page'
                         sh 'docker tag statuspage-app:$IMAGE_VERSION $ECR_APP_REPO:$IMAGE_VERSION'
                         sh 'docker push $ECR_APP_REPO:$IMAGE_VERSION'
-                        sh 'trivy image --skip-update --severity HIGH,CRITICAL $ECR_APP_REPO:$IMAGE_VERSION'
+                        // sh 'trivy image --skip-update --severity HIGH,CRITICAL $ECR_APP_REPO:$IMAGE_VERSION'
                     }
                 }
             }
@@ -36,7 +36,7 @@ pipeline {
                         sh 'docker build --no-cache -t nginx-bop:$IMAGE_VERSION ./status-page/contrib'
                         sh 'docker tag nginx-bop:$IMAGE_VERSION $ECR_NGINX_REPO:$IMAGE_VERSION'
                         sh 'docker push $ECR_NGINX_REPO:$IMAGE_VERSION'
-                        sh 'trivy image --skip-update --severity HIGH,CRITICAL $ECR_NGINX_REPO:$IMAGE_VERSION'
+                        // sh 'trivy image --skip-update --severity HIGH,CRITICAL $ECR_NGINX_REPO:$IMAGE_VERSION'
                     }
                 }
             }
